@@ -1,8 +1,7 @@
-local CameraSegway = {}
+local Internal = {}
+Internal.__index = Internal
 
 local TWS = game:GetService("TweenService")
-
-CameraSegway.__index = CameraSegway
 
 local function getCFrame(toGet: BasePart | CFrameValue | CFrame)
     if toGet:IsA("BasePart") then
@@ -16,31 +15,41 @@ local function getCFrame(toGet: BasePart | CFrameValue | CFrame)
     end
 end
 
-function CameraSegway.new(start: BasePart | CFrame | CFrameValue, goal: BasePart | CFrame | CFrameValue, tweenInfo: TweenInfo)
-    local self = setmetatable({}, CameraSegway)
+local function changeCompleted(self)
+    task.wait(self.tween.TweenInfo.Time)
+    self.CompletedBind:Fire()
+end
+
+function Internal.new(start: BasePart | CFrame | CFrameValue, goal: BasePart | CFrame | CFrameValue, tweenInfo: TweenInfo)
+    local self = setmetatable({}, Internal)
 
     self.start = getCFrame(start)
     self.goal = getCFrame(goal)
     self.tweenInfo = tweenInfo
+    self.CompletedBind = Instance.new("BindableEvent")
+    self.Completed = self.CompletedBind.Event
 
     return self
 end 
 
-function CameraSegway:Play(cam: Camera)
+function Internal:Play(cam: Camera)
     if self.tween then
         cam.CameraType = Enum.CameraType.Scriptable
         cam.CFrame = self.start
         self.tween:Play()
+        changeCompleted(self.tween)
     else
         cam.CameraType = Enum.CameraType.Scriptable
         cam.CFrame = self.start
         local tween = TWS:Create(cam, self.tweenInfo, self.goal)
         table.insert(self.tween, tween)
+        tween:Play()
+        changeCompleted(tween)
     end
 end
 
-function CameraSegway:Cancel(cam: Camera)
+function Internal:Cancel(cam: Camera)
     self.tween:Cancel()
 end
 
-return CameraSegway
+return Internal
