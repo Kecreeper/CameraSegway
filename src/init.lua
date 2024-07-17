@@ -2,6 +2,7 @@ local CameraSegway = {}
 CameraSegway.__index = CameraSegway 
 
 local Internal = require(script.Internal)
+local RunService = game:GetService("RunService")
 
 local function siffleMainFolder(main: folder)
     local primary = main.Primary
@@ -28,17 +29,21 @@ function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
 
     local self = {}
     self.segways = Segways
-    self.segwaysAmount = #Segways
+    self.running = false
 
     return self
 end
 
 function CameraSegway:Begin()
-
+    while self.running == true do
+        local segway = self.segways[math.random(1, #self.segways)]
+        segway:Play(workspace.CurrentCamera)
+        segway.Completed:wait()
+    end
 end
 
 function CameraSegway:Stop()
-
+    
 end
 
 return CameraSegway 

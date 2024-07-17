@@ -16,8 +16,9 @@ local function getCFrame(toGet: BasePart | CFrameValue | CFrame)
 end
 
 local function changeCompleted(self)
-    task.wait(self.tween.TweenInfo.Time)
-    self.CompletedBind:Fire()
+    self.tween.Completed:Connect(function()
+        self.CompletedBind:Fire()
+    end)
 end
 
 function Internal.new(start: BasePart | CFrame | CFrameValue, goal: BasePart | CFrame | CFrameValue, tweenInfo: TweenInfo)
@@ -48,7 +49,7 @@ function Internal:Play(cam: Camera)
     end
 end
 
-function Internal:Cancel(cam: Camera)
+function Internal:Cancel()
     self.tween:Cancel()
 end
 
