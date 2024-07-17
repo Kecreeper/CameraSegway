@@ -1,0 +1,3 @@
+local CameraSegway = {}
+
+return CameraSegway
