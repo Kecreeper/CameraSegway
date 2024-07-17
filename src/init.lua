@@ -16,6 +16,7 @@ end
 
 function init.new(folder: folder)
     local pairings = siffleMainFolder(folder)
+    local self = {}
     self.pairings = pairings
 end 
 
