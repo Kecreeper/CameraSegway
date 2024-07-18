@@ -45,22 +45,19 @@ function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
     local self = {}
     self.segways = Segways
     self.running = false
+    self.properties = nil
     self.camera = nil
 
     return self
 end
 
 function CameraSegway:Begin()
-    
-
+    getCamera(self)
+    if self.properties then
+        addPropsToCamera(self.properties, self.camera)
+    end
     while self.running == true do
         local segway = self.segways[math.random(1, #self.segways)]
-
-        if self.properties then
-            for i,v in self.properties do
-                
-            end
-        end
 
         segway:Play(getCamera(self))
         segway.Completed:wait()
