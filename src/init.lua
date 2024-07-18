@@ -64,9 +64,15 @@ local function ApplyEffects(self)
     end
 end
 
+local function siffleTweenInfo(tweenInfo: TweenInfo): TweenInfo
+    local newtweeninfo = TweenInfo.new(tweenInfo.Time, tweenInfo.EasingStyle, tweenInfo.EasingDirection)
+    return newtweeninfo
+end
+
 function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
     local pairingsTable = siffleMainFolder(folder)
     local Segways = {}
+    tweenInfo = siffleTweenInfo(tweenInfo)
 
     for _,v in pairingsTable do
         table.insert(Segways, Internal.new(v[1], v[2], tweenInfo))
