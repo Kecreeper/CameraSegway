@@ -37,7 +37,7 @@ local function siffleEffectsFolder(folder: Folder)
     return effects
 end
 
-local function getCamera(self)
+local function GetCamera(self)
     if self.camera then
         return self.camera
     else
@@ -52,11 +52,17 @@ local function ApplyPropsToCamera(properties: Table, camera: Camera)
     end
 end
 
-local function ApplyEffectsAndLog(self)
+local function DestroyEffects(self)
+    for _,v in self.eClones do
+        v:Destroy()
+    end
+end
+
+local function ApplyEffects(self)
     for _,v in self.effects do
-        local e = v:Clone
+        local e = v:Clone()
         e.Parent = self.Camera
-        table.insert(self.effectsClone, e)
+        table.insert(self.eClones, e)
     end
 end
 
@@ -74,24 +80,24 @@ function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
     self.running = false
     self.properties = nil
     self.effects = nil
-    self.effectsClones = {}
+    self.eClones = {}
     self.camera = nil
 
     return self
 end
 
 function CameraSegway:Begin()
-    getCamera(self)
+    GetCamera(self)
     if self.properties then
-        addPropsToCamera(self.properties, self.camera)
+        ApplyPropsToCamera(self.properties, self.camera)
     end
     if self.effects then
-        
+        ApplyEffects(self)
     end
     while self.running == true do
         local segway = self.segways[math.random(1, #self.segways)]
 
-        segway:Play(getCamera(self))
+        segway:Play(GetCamera(self))
         segway.Completed:wait()
     end
 end
@@ -99,18 +105,22 @@ end
 function CameraSegway:Stop()
     self.running = false
     self.camera = nil
+    DestroyEffects(self)
 end
 
 function CameraSegway:ChangeProperties(properties: Table)
     self.properties = properties
     if self.running == true then
-        applyPropsToCamera(self.properties, self.camera)
+        ApplyPropsToCamera(self.properties, self.camera)
     end
 end
 
 function CameraSegway:AddEffects(folder: Folder)
     local effects = siffleEffectsFolder(folder)
     self.effects = effects
+    if self.running == true then
+        ApplyEffects(self)
+    end
 end
 
 return CameraSegway 
