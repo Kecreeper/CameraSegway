@@ -4,6 +4,12 @@ CameraSegway.__index = CameraSegway
 local Internal = require(script.Internal)
 local RunService = game:GetService("RunService")
 
+local function checkRunContext()
+    assert(RunService:IsClient(), "Module is intended for the client")
+end
+
+checkRunContext()
+
 local function siffleMainFolder(main: folder)
     local primary = main.Primary
     local secondary = main.Secondary
@@ -23,7 +29,9 @@ local function siffleEffectsFolder(folder: Folder)
     local effects = {}
 
     for _,v in pairs(folder:GetChildren) do
-        table.insert(effects, v)
+        if v:IsA("PostEffect") then
+            table.insert(effects, v)
+        end
     end
 
     return effects
@@ -53,6 +61,7 @@ local function ApplyEffectsAndLog(self)
 end
 
 function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
+    checkRunContext()
     local pairingsTable = siffleMainFolder(folder)
     local Segways = {}
 
