@@ -19,6 +19,14 @@ local function siffleMainFolder(main: folder)
     return pairings
 end
 
+local function siffleEffectsFolder(folder: Folder)
+    local effects = {}
+
+    for _,v in pairs(folder:GetChildren) do
+        table.insert(effects, v)
+    end
+end
+
 local function getCamera(self)
     if self.camera then
         return self.camera
@@ -46,6 +54,8 @@ function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
     self.segways = Segways
     self.running = false
     self.properties = nil
+    self.effects = nil
+    self.effectsClone = nil
     self.camera = nil
 
     return self
@@ -77,7 +87,8 @@ function CameraSegway:ChangeProperties(properties: Table)
 end
 
 function CameraSegway:AddEffects(folder: Folder)
-
+    local effects = siffleEffectsFolder(folder)
+    self.effects = effects
 end
 
 return CameraSegway 
