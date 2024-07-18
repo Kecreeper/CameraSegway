@@ -54,7 +54,7 @@ function Internal:Play(cam: Camera)
     else
         setCamera(self)
         local tween = TWS:Create(self.camera, self.tweenInfo, self.goal)
-        table.insert(self.tween, tween)
+        self.tween = tween
         tween:Play()
         tween.Completed:Connect(function()
             self.CompletedBind:Fire()

@@ -4,15 +4,13 @@ CameraSegway.__index = CameraSegway
 local Internal = require(script.Internal)
 local RunService = game:GetService("RunService")
 
-local function checkRunContext()
-    assert(RunService:IsClient(), "Module is intended for the client")
-end
+local function siffleMainFolder(main: Folder)
+    local primary = main["Primary"]
+    local secondary = main["Secondary"]
 
-checkRunContext()
-
-local function siffleMainFolder(main: folder)
-    local primary = main.Primary
-    local secondary = main.Secondary
+    print(main)
+    print(primary)
+    print(secondary)
 
     local pairings = {}
 
@@ -28,7 +26,7 @@ end
 local function siffleEffectsFolder(folder: Folder)
     local effects = {}
 
-    for _,v in pairs(folder:GetChildren) do
+    for _,v in pairs(folder:GetChildren()) do
         if v:IsA("PostEffect") then
             table.insert(effects, v)
         end
@@ -46,7 +44,7 @@ local function GetCamera(self)
     end
 end
 
-local function ApplyPropsToCamera(properties: Table, camera: Camera)
+local function ApplyPropsToCamera(properties: table, camera: Camera)
     for i,v in properties do
         camera[i] = v
     end
@@ -66,8 +64,7 @@ local function ApplyEffects(self)
     end
 end
 
-function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
-    checkRunContext()
+function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
     local pairingsTable = siffleMainFolder(folder)
     local Segways = {}
 
@@ -75,7 +72,7 @@ function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
         table.insert(Segways, Internal.new(v[1], v[2], tweenInfo))
     end
 
-    local self = {}
+    local self = setmetatable({}, CameraSegway)
     self.segways = Segways
     self.running = false
     self.properties = nil
@@ -94,7 +91,9 @@ function CameraSegway:Begin()
     if self.effects then
         ApplyEffects(self)
     end
+    self.running = true
     while self.running == true do
+        print("keep it loopy")
         local segway = self.segways[math.random(1, #self.segways)]
 
         segway:Play(GetCamera(self))
@@ -108,7 +107,7 @@ function CameraSegway:Stop()
     DestroyEffects(self)
 end
 
-function CameraSegway:ChangeProperties(properties: Table)
+function CameraSegway:ChangeProperties(properties: table)
     self.properties = properties
     if self.running == true then
         ApplyPropsToCamera(self.properties, self.camera)
