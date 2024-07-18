@@ -19,6 +19,21 @@ local function siffleMainFolder(main: folder)
     return pairings
 end
 
+local function getCamera(self)
+    if self.camera then
+        return self.camera
+    else
+        self.camera = workspace.CurrentCamera
+        return workspace.currentCamera
+    end
+end
+
+local function ApplyPropsToCamera(properties: Table, camera: Camera)
+    for i,v in properties do
+        camera[i] = v
+    end
+end
+
 function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
     local pairingsTable = siffleMainFolder(folder)
     local Segways = {}
@@ -30,20 +45,42 @@ function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
     local self = {}
     self.segways = Segways
     self.running = false
+    self.camera = nil
 
     return self
 end
 
 function CameraSegway:Begin()
+    
+
     while self.running == true do
         local segway = self.segways[math.random(1, #self.segways)]
-        segway:Play(workspace.CurrentCamera)
+
+        if self.properties then
+            for i,v in self.properties do
+                
+            end
+        end
+
+        segway:Play(getCamera(self))
         segway.Completed:wait()
     end
 end
 
 function CameraSegway:Stop()
-    
+    self.running = false
+    self.camera = nil
+end
+
+function CameraSegway:ChangeProperties(properties: Table)
+    self.properties = properties
+    if self.running == true then
+        applyPropsToCamera(self.properties, self.camera)
+    end
+end
+
+function CameraSegway:AddEffects(folder: Folder)
+
 end
 
 return CameraSegway 
