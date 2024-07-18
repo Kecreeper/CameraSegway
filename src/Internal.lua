@@ -62,14 +62,14 @@ function Internal:Play(cam: Camera)
     end
 end
 
-function Internal:Cancel(returnCamera: boolean)
+function Internal:Cancel(returnCam: boolean)
     self.tween:Cancel()
     if returnCamera == true then
         returnCamera(self)
     end
 end
 
-function Internal:Pause(returnCamera: boolean)
+function Internal:Pause(returnCam: boolean)
     self.tween:Pause()
     if returnCamera == true then
         returnCamera(self)
