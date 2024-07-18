@@ -15,6 +15,15 @@ local function getCFrame(toGet: BasePart | CFrameValue | CFrame)
     end
 end
 
+local function returnCamera(self)
+    self.camera.CameraType = Enum.CameraType.Custom
+end
+
+local function setCamera(self)
+    self.camera.CameraType = Enum.CameraType.Scriptable
+    self.camera.CFrame = self.start
+end
+
 function Internal.new(start: BasePart | CFrame | CFrameValue, goal: BasePart | CFrame | CFrameValue, tweenInfo: TweenInfo)
     local self = setmetatable({}, Internal)
 
@@ -23,19 +32,28 @@ function Internal.new(start: BasePart | CFrame | CFrameValue, goal: BasePart | C
     self.tweenInfo = tweenInfo
     self.CompletedBind = Instance.new("BindableEvent")
     self.Completed = self.CompletedBind.Event
+    self.camera = nil
 
     return self
 end 
 
 function Internal:Play(cam: Camera)
+    if cam and not self.camera then
+        self.camera = cam
+    elseif not cam and self.camera then
+        
+    elseif cam and self.camera then
+        self.camera = cam
+    else
+        error("No camera provided")
+    end
+
     if self.tween then
-        cam.CameraType = Enum.CameraType.Scriptable
-        cam.CFrame = self.start
+        setCamera(self)
         self.tween:Play()
     else
-        cam.CameraType = Enum.CameraType.Scriptable
-        cam.CFrame = self.start
-        local tween = TWS:Create(cam, self.tweenInfo, self.goal)
+        setCamera(self)
+        local tween = TWS:Create(self.camera, self.tweenInfo, self.goal)
         table.insert(self.tween, tween)
         tween:Play()
         tween.Completed:Connect(function()
@@ -44,12 +62,18 @@ function Internal:Play(cam: Camera)
     end
 end
 
-function Internal:Cancel()
+function Internal:Cancel(returnCamera: boolean)
     self.tween:Cancel()
+    if returnCamera == true then
+        returnCamera(self)
+    end
 end
 
-function Internal:Pause()
+function Internal:Pause(returnCamera: boolean)
     self.tween:Pause()
+    if returnCamera == true then
+        returnCamera(self)
+    end
 end
 
 return Internal
