@@ -25,6 +25,8 @@ local function siffleEffectsFolder(folder: Folder)
     for _,v in pairs(folder:GetChildren) do
         table.insert(effects, v)
     end
+
+    return effects
 end
 
 local function getCamera(self)
@@ -42,6 +44,14 @@ local function ApplyPropsToCamera(properties: Table, camera: Camera)
     end
 end
 
+local function ApplyEffectsAndLog(self)
+    for _,v in self.effects do
+        local e = v:Clone
+        e.Parent = self.Camera
+        table.insert(self.effectsClone, e)
+    end
+end
+
 function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
     local pairingsTable = siffleMainFolder(folder)
     local Segways = {}
@@ -55,7 +65,7 @@ function CameraSegway.new(folder: folder, tweenInfo: TweenInfo)
     self.running = false
     self.properties = nil
     self.effects = nil
-    self.effectsClone = nil
+    self.effectsClones = {}
     self.camera = nil
 
     return self
@@ -65,6 +75,9 @@ function CameraSegway:Begin()
     getCamera(self)
     if self.properties then
         addPropsToCamera(self.properties, self.camera)
+    end
+    if self.effects then
+        
     end
     while self.running == true do
         local segway = self.segways[math.random(1, #self.segways)]
