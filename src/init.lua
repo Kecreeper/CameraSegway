@@ -49,14 +49,12 @@ end
 
 local function ApplyPropsToCamera(self)
     if self.properties ~= nil then
-        for i,v in self.camera do
-            if i ~= "CFrame" then
-                self.ogProperties[i] = v
-            end
-        end
+        local curCam:Camera = self.camera
+        self.ogProperties["FieldOfView"] = curCam.FieldOfView
         for i,v in self.properties do
             self.camera[i] = v
         end
+        self.camera = nil
     end
 end
 
@@ -95,7 +93,7 @@ function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
     self.effects = nil
     self.eClones = {}
     self.camera = nil
-    self.ogProperties = nil
+    self.ogProperties = {}
     self.history = {}
     self.segwaysLength = 0
     self.finished = false
@@ -124,15 +122,10 @@ function CameraSegway:Begin()
             until table.find(self.history, randomIndex) == nil
             if #self.history+1 < self.segwaysLength then
                 table.insert(self.history, randomIndex)
-                print(#self.history)
-                warn(self.segwaysLength)
             else
                 table.remove(self.history, 1)
                 table.insert(self.history, randomIndex)
             end
-
-            print(self.history)
-            warn(self.segwaysLength)
 
             outer = randomIndex
             local segway = self.segways[randomIndex]
@@ -147,14 +140,12 @@ function CameraSegway:Begin()
 end
 
 function CameraSegway:Stop()
-    
     self.running = false
     repeat
         task.wait()
     until self.finished == true
 
     self.finished = false
-    self.camera = nil
     DestroyEffects(self)
     restorePropsToCamera(self)
 end
