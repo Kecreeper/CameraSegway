@@ -83,11 +83,10 @@ end
 
 function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
     local pairingsTable = siffleMainFolder(folder)
-    local Segways = {}
     tweenInfo = siffleTweenInfo(tweenInfo)
 
     local self = setmetatable({}, CameraSegway)
-    self.segways = Segways
+    self.segways = {}
     self.running = false
     self.properties = nil
     self.effects = nil
@@ -100,7 +99,7 @@ function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
 
     for _,v in pairingsTable do
         self.segwaysLength += 1
-        table.insert(Segways, Internal.new(v[1], v[2], tweenInfo))
+        table.insert(self.segways, Internal.new(v[1], v[2], tweenInfo))
     end
 
     return self
