@@ -24,20 +24,15 @@ local tweenInfo = TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection
 
 local Segway = CameraSegway.new(workspace.Main, tweenInfo)
 
-print("Segway:ChangeProperties({FieldOfView = 30})")
-print("Segway:Begin()")
 Segway:ChangeProperties({FieldOfView = 30})
 Segway:Begin()
 
 task.wait(3)
-print("segway:AddEffects(workspace.Effects)")
-print("segway:ChangeProperties({FieldOfView = 40})")
 Segway:AddEffects(workspace.Effects)
 Segway:ChangeProperties({FieldOfView = 40})
 
 task.wait(20)
 
-print("segway:Stop()")
 Segway:Stop() -- waits for camera to stop tweening
 ```
 > Will only take the time, easing style, and easing direction of any TweenInfo inputted
