@@ -7,10 +7,6 @@ local function siffleMainFolder(main: Folder)
     local primary = main["Primary"]
     local secondary = main["Secondary"]
 
-    print(main)
-    print(primary)
-    print(secondary)
-
     local pairings = {}
 
     for _,v in pairs(primary:GetChildren()) do
@@ -43,8 +39,21 @@ local function GetCamera(self)
     end
 end
 
+local function restorePropsToCamera(self)
+    if self.ogProperties ~= nil then
+        for i,v in self.ogProperties do
+            self.camera[i] = v
+        end
+    end
+end
+
 local function ApplyPropsToCamera(self)
     if self.properties ~= nil then
+        for i,v in self.camera do
+            if i ~= "CFrame" then
+                self.ogProperties[i] = v
+            end
+        end
         for i,v in self.properties do
             self.camera[i] = v
         end
@@ -79,10 +88,6 @@ function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
     local Segways = {}
     tweenInfo = siffleTweenInfo(tweenInfo)
 
-    for _,v in pairingsTable do
-        table.insert(Segways, Internal.new(v[1], v[2], tweenInfo))
-    end
-
     local self = setmetatable({}, CameraSegway)
     self.segways = Segways
     self.running = false
@@ -90,7 +95,15 @@ function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
     self.effects = nil
     self.eClones = {}
     self.camera = nil
-    self.index = 0
+    self.ogProperties = nil
+    self.history = {}
+    self.segwaysLength = 0
+    self.finished = false
+
+    for _,v in pairingsTable do
+        self.segwaysLength += 1
+        table.insert(Segways, Internal.new(v[1], v[2], tweenInfo))
+    end
 
     return self
 end
@@ -105,24 +118,45 @@ function CameraSegway:Begin()
     coroutine.wrap(function()
         local outer
         repeat
-            print("keep it loopy")
-            local randomIndex = math.random(1, #self.segways)
+            local randomIndex
+            repeat 
+                randomIndex = math.random(1, #self.segways)
+            until table.find(self.history, randomIndex) == nil
+            if #self.history+1 < self.segwaysLength then
+                table.insert(self.history, randomIndex)
+                print(#self.history)
+                warn(self.segwaysLength)
+            else
+                table.remove(self.history, 1)
+                table.insert(self.history, randomIndex)
+            end
+
+            print(self.history)
+            warn(self.segwaysLength)
+
             outer = randomIndex
             local segway = self.segways[randomIndex]
-    
+
             segway:Play(GetCamera(self))
             segway.Completed:Wait()
             segway:Cancel(false)
         until self.running == false
         self.segways[outer]:Cancel(true)
+        self.finished = true
     end)()
 end
 
 function CameraSegway:Stop()
-    print("asdfasdf")
+    
     self.running = false
+    repeat
+        task.wait()
+    until self.finished == true
+
+    self.finished = false
     self.camera = nil
     DestroyEffects(self)
+    restorePropsToCamera(self)
 end
 
 function CameraSegway:ChangeProperties(properties: table)
