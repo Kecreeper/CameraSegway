@@ -1,3 +1,5 @@
+--# selene: allow(empty_if)
+
 local Internal = {}
 Internal.__index = Internal
 
@@ -38,12 +40,9 @@ function Internal.new(start: BasePart | CFrame | CFrameValue, goal: BasePart | C
 end 
 
 function Internal:Play(cam: Camera)
-    if cam and not self.camera then
+    if (cam and not self.camera) or (cam and self.camera) then
         self.camera = cam
     elseif not cam and self.camera then
-        
-    elseif cam and self.camera then
-        self.camera = cam
     else
         error("No camera provided")
     end
@@ -64,14 +63,14 @@ end
 
 function Internal:Cancel(returnCam: boolean)
     self.tween:Cancel()
-    if returnCamera == true then
+    if returnCam == true then
         returnCamera(self)
     end
 end
 
 function Internal:Pause(returnCam: boolean)
     self.tween:Pause()
-    if returnCamera == true then
+    if returnCam == true then
         returnCamera(self)
     end
 end

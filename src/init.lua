@@ -2,7 +2,6 @@ local CameraSegway = {}
 CameraSegway.__index = CameraSegway 
 
 local Internal = require(script.Internal)
-local RunService = game:GetService("RunService")
 
 local function siffleMainFolder(main: Folder)
     local primary = main["Primary"]
@@ -44,23 +43,29 @@ local function GetCamera(self)
     end
 end
 
-local function ApplyPropsToCamera(properties: table, camera: Camera)
-    for i,v in properties do
-        camera[i] = v
+local function ApplyPropsToCamera(self)
+    if self.properties ~= nil then
+        for i,v in self.properties do
+            self.camera[i] = v
+        end
     end
 end
 
 local function DestroyEffects(self)
-    for _,v in self.eClones do
-        v:Destroy()
+    if self.eClones ~= nil then
+        for _,v in self.eClones do
+            v:Destroy()
+        end
     end
 end
 
 local function ApplyEffects(self)
-    for _,v in self.effects do
-        local e = v:Clone()
-        e.Parent = self.Camera
-        table.insert(self.eClones, e)
+    if self.effects ~= nil then
+        for _,v in self.effects do
+            local e = v:Clone()
+            e.Parent = self.camera
+            table.insert(self.eClones, e)
+        end
     end
 end
 
@@ -85,29 +90,36 @@ function CameraSegway.new(folder: Folder, tweenInfo: TweenInfo)
     self.effects = nil
     self.eClones = {}
     self.camera = nil
+    self.index = 0
 
     return self
 end
 
 function CameraSegway:Begin()
     GetCamera(self)
-    if self.properties then
-        ApplyPropsToCamera(self.properties, self.camera)
-    end
-    if self.effects then
-        ApplyEffects(self)
-    end
+    ApplyPropsToCamera(self)
+    ApplyEffects(self)
+    
     self.running = true
-    while self.running == true do
-        print("keep it loopy")
-        local segway = self.segways[math.random(1, #self.segways)]
 
-        segway:Play(GetCamera(self))
-        segway.Completed:wait()
-    end
+    coroutine.wrap(function()
+        local outer
+        repeat
+            print("keep it loopy")
+            local randomIndex = math.random(1, #self.segways)
+            outer = randomIndex
+            local segway = self.segways[randomIndex]
+    
+            segway:Play(GetCamera(self))
+            segway.Completed:Wait()
+            segway:Cancel(false)
+        until self.running == false
+        self.segways[outer]:Cancel(true)
+    end)()
 end
 
 function CameraSegway:Stop()
+    print("asdfasdf")
     self.running = false
     self.camera = nil
     DestroyEffects(self)
@@ -116,7 +128,7 @@ end
 function CameraSegway:ChangeProperties(properties: table)
     self.properties = properties
     if self.running == true then
-        ApplyPropsToCamera(self.properties, self.camera)
+        ApplyPropsToCamera(self)
     end
 end
 
